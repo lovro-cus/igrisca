@@ -7,6 +7,11 @@
     "dev": "ts-node src/app.ts",
     "test": "jest --forceExit"
   },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.ts"]
+  },
   "dependencies": {
     "express": "^4.19.2",
     "better-sqlite3": "^9.6.0",

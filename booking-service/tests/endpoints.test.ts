@@ -1,8 +1,5 @@
-import request from "supertest";
-import { app } from "../src/app";
-import Database from "better-sqlite3";
-
 jest.mock("../src/database", () => {
+  const Database = require("better-sqlite3");
   const db = new Database(":memory:");
   db.exec(`
     CREATE TABLE IF NOT EXISTS bookings (
@@ -12,6 +9,9 @@ jest.mock("../src/database", () => {
   `);
   return { default: db };
 });
+
+import request from "supertest";
+import { app } from "../src/app";
 
 describe("Booking Endpoints", () => {
   test("GET /health", async () => {

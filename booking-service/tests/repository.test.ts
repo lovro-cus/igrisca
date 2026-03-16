@@ -1,8 +1,5 @@
-import Database from "better-sqlite3";
-import { BookingRepository } from "../src/repository/BookingRepository";
-
-// override DB z in-memory bazo za teste
 jest.mock("../src/database", () => {
+  const Database = require("better-sqlite3");
   const db = new Database(":memory:");
   db.exec(`
     CREATE TABLE IF NOT EXISTS bookings (
@@ -12,6 +9,8 @@ jest.mock("../src/database", () => {
   `);
   return { default: db };
 });
+
+import { BookingRepository } from "../src/repository/BookingRepository";
 
 describe("BookingRepository", () => {
   let repo: BookingRepository;
