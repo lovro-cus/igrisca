@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package availability;
+
+service AvailabilityService {
+  rpc GetAvailableSlots (GetAvailableSlotsRequest) returns (GetAvailableSlotsResponse);
+  rpc AddTimeSlot (AddTimeSlotRequest) returns (TimeSlotResponse);
+  rpc MarkSlotBooked (MarkSlotBookedRequest) returns (TimeSlotResponse);
+  rpc MarkSlotAvailable (MarkSlotAvailableRequest) returns (TimeSlotResponse);
+}
+
+message GetAvailableSlotsRequest {
+  string fieldId = 1;
+  string date = 2;
+}
+
+message GetAvailableSlotsResponse {
+  repeated TimeSlotResponse slots = 1;
+}
+
+message AddTimeSlotRequest {
+  string fieldId = 1;
+  string date = 2;
+  string timeSlot = 3;
+}
+
+message MarkSlotBookedRequest {
+  string id = 1;
+}
+
+message MarkSlotAvailableRequest {
+  string id = 1;
+}
+
+message TimeSlotResponse {
+  string id = 1;
+  string fieldId = 2;
+  string date = 3;
+  string timeSlot = 4;
+  bool available = 5;
+}

@@ -1,14 +1,9 @@
-jest.mock("../src/database", () => {
-  const Database = require("better-sqlite3");
-  const db = new Database(":memory:");
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS bookings (
-      id TEXT PRIMARY KEY, userId TEXT, fieldId TEXT,
-      date TEXT, timeSlot TEXT, status TEXT, createdAt TEXT
-    )
-  `);
-  return { default: db };
-});
+const mockQuery = jest.fn();
+
+jest.mock("../src/database", () => ({
+  default: { query: mockQuery },
+  initDb: jest.fn(),
+}));
 
 import { BookingRepository } from "../src/repository/BookingRepository";
 
@@ -17,36 +12,55 @@ describe("BookingRepository", () => {
 
   beforeEach(() => {
     repo = new BookingRepository();
+    mockQuery.mockReset();
   });
 
-  test("should create a booking", () => {
-    const b = repo.create("user1", "field1", "2026-03-20", "10:00-11:00");
+  test("should create a booking", async () => {
+    mockQuery.mockResolvedValue({ rows: [] });
+    const b = await repo.create("user1", "field1", "2026-03-20", "10:00-11:00");
     expect(b.id).toBeDefined();
     expect(b.status).toBe("active");
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT"), expect.any(Array));
   });
 
-  test("should get booking by id", () => {
-    const b = repo.create("user1", "field1", "2026-03-20", "10:00-11:00");
-    expect(repo.getById(b.id)).toBeDefined();
+  test("should get booking by id - found", async () => {
+    const fakeBooking = { id: "abc", userId: "u1", fieldId: "f1", date: "2026-03-20", timeSlot: "10:00-11:00", status: "active", createdAt: "" };
+    mockQuery.mockResolvedValue({ rows: [fakeBooking] });
+    const result = await repo.getById("abc");
+    expect(result).toBeDefined();
+    expect(result?.userId).toBe("u1");
   });
 
-  test("should return undefined for nonexistent id", () => {
-    expect(repo.getById("nonexistent-id")).toBeUndefined();
+  test("should return undefined for nonexistent id", async () => {
+    mockQuery.mockResolvedValue({ rows: [] });
+    const result = await repo.getById("nonexistent");
+    expect(result).toBeUndefined();
   });
 
-  test("should get bookings by user", () => {
-    repo.create("userX", "field1", "2026-03-20", "09:00-10:00");
-    repo.create("userX", "field2", "2026-03-21", "10:00-11:00");
-    expect(repo.getByUser("userX").length).toBeGreaterThanOrEqual(2);
+  test("should get all bookings", async () => {
+    mockQuery.mockResolvedValue({ rows: [] });
+    const result = await repo.getAll();
+    expect(Array.isArray(result)).toBe(true);
   });
 
-  test("should cancel a booking", () => {
-    const b = repo.create("user1", "field1", "2026-03-22", "11:00-12:00");
-    const cancelled = repo.cancel(b.id);
-    expect(cancelled?.status).toBe("cancelled");
+  test("should get bookings by user", async () => {
+    mockQuery.mockResolvedValue({ rows: [] });
+    const result = await repo.getByUser("user1");
+    expect(Array.isArray(result)).toBe(true);
   });
 
-  test("should return undefined when cancelling nonexistent booking", () => {
-    expect(repo.cancel("bad-id")).toBeUndefined();
+  test("should cancel a booking", async () => {
+    const fakeBooking = { id: "abc", userId: "u1", fieldId: "f1", date: "2026-03-20", timeSlot: "10:00-11:00", status: "active", createdAt: "" };
+    mockQuery
+      .mockResolvedValueOnce({ rows: [fakeBooking] })  // getById
+      .mockResolvedValueOnce({ rows: [] });              // UPDATE
+    const result = await repo.cancel("abc");
+    expect(result?.status).toBe("cancelled");
+  });
+
+  test("should return undefined when cancelling nonexistent", async () => {
+    mockQuery.mockResolvedValue({ rows: [] });
+    const result = await repo.cancel("bad-id");
+    expect(result).toBeUndefined();
   });
 });

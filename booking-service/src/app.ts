@@ -2,6 +2,7 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import { router as bookingRouter } from "./routes/bookings";
+import { initDb } from "./database";
 import logger from "./logger";
 
 export const app = express();
@@ -28,6 +29,8 @@ const swaggerSpec = swaggerJsdoc({
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/bookings", bookingRouter);
 
+app.get("/", (_req, res) => res.redirect("/api-docs"));
+
 app.get("/health", (_req, res) => {
   logger.info("Health check");
   res.json({ status: "ok", service: "booking-service" });
@@ -35,5 +38,7 @@ app.get("/health", (_req, res) => {
 
 if (require.main === module) {
   const PORT = process.env.PORT || 3001;
-  app.listen(PORT, () => logger.info(`Booking service running on port ${PORT}`));
+  initDb().then(() => {
+    app.listen(PORT, () => logger.info(`Booking service running on port ${PORT}`));
+  });
 }

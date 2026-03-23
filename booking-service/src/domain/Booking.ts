@@ -2,8 +2,9 @@ export interface Booking {
   id: string;
   userId: string;
   fieldId: string;
-  date: string;       // ISO format: "2026-03-20"
-  timeSlot: string;   // npr. "10:00-11:00"
+  slotId?: string;      // ← ID termina v availability-service
+  date: string;
+  timeSlot: string;
   status: "active" | "cancelled";
   createdAt: string;
 }

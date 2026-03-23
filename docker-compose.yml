@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  # Bazi
+  bookings-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bookings
+    ports:
+      - "5432:5432"
+    volumes:
+      - bookings_db_data:/var/lib/postgresql/data
+
+  availability-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: availability
+    ports:
+      - "5433:5432"
+    volumes:
+      - availability_db_data:/var/lib/postgresql/data
+
+  # Storitve
+  availability-service:
+    build: ./availability-service
+    ports:
+      - "9090:9090"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@availability-db:5432/availability
+      GRPC_PORT: "9090"
+    depends_on:
+      - availability-db
+
+  booking-service:
+    build: ./booking-service
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@bookings-db:5432/bookings
+      AVAILABILITY_SERVICE_URL: availability-service:9090
+    depends_on:
+      - bookings-db
+      - availability-service
+
+volumes:
+  bookings_db_data:
+  availability_db_data:

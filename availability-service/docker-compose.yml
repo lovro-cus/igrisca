@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  availability-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: availability
+    ports:
+      - "5433:5432"
+    volumes:
+      - availability_db_data:/var/lib/postgresql/data
+
+  availability-service:
+    build: .
+    ports:
+      - "9090:9090"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@availability-db:5432/availability
+      GRPC_PORT: "9090"
+    depends_on:
+      - availability-db
+
+volumes:
+  availability_db_data:

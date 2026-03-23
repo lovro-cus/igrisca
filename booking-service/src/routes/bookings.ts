@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { BookingRepository } from "../repository/BookingRepository";
+import { markSlotBooked, markSlotAvailable } from "../grpc/availabilityClient";
 import logger from "../logger";
 
 export const router = Router();
@@ -20,7 +21,8 @@ export const router = Router();
  *             properties:
  *               userId: { type: string }
  *               fieldId: { type: string }
- *               date: { type: string, example: "2026-03-20" }
+ *               slotId: { type: string }
+ *               date: { type: string, example: "2026-03-25" }
  *               timeSlot: { type: string, example: "10:00-11:00" }
  *     responses:
  *       201:
@@ -28,13 +30,14 @@ export const router = Router();
  *       400:
  *         description: Manjkajoči podatki
  */
-router.post("/", (req: Request, res: Response) => {
-  const { userId, fieldId, date, timeSlot } = req.body;
+router.post("/", async (req: Request, res: Response) => {
+  const { userId, fieldId, slotId, date, timeSlot } = req.body;
   if (!userId || !fieldId || !date || !timeSlot) {
     logger.warn("Create booking - missing fields");
     return res.status(400).json({ error: "userId, fieldId, date in timeSlot so obvezni" });
   }
-  const booking = new BookingRepository().create(userId, fieldId, date, timeSlot);
+  const booking = await new BookingRepository().create(userId, fieldId, date, timeSlot, slotId);
+  if (slotId) await markSlotBooked(slotId);
   return res.status(201).json(booking);
 });
 
@@ -48,8 +51,8 @@ router.post("/", (req: Request, res: Response) => {
  *       200:
  *         description: Lista rezervacij
  */
-router.get("/", (_req: Request, res: Response) => {
-  return res.json(new BookingRepository().getAll());
+router.get("/", async (_req: Request, res: Response) => {
+  return res.json(await new BookingRepository().getAll());
 });
 
 /**
@@ -67,8 +70,8 @@ router.get("/", (_req: Request, res: Response) => {
  *       200:
  *         description: Lista rezervacij uporabnika
  */
-router.get("/user/:userId", (req: Request, res: Response) => {
-  return res.json(new BookingRepository().getByUser(req.params.userId));
+router.get("/user/:userId", async (req: Request, res: Response) => {
+  return res.json(await new BookingRepository().getByUser(req.params.userId));
 });
 
 /**
@@ -88,8 +91,8 @@ router.get("/user/:userId", (req: Request, res: Response) => {
  *       404:
  *         description: Ni najdena
  */
-router.get("/:id", (req: Request, res: Response) => {
-  const booking = new BookingRepository().getById(req.params.id);
+router.get("/:id", async (req: Request, res: Response) => {
+  const booking = await new BookingRepository().getById(req.params.id);
   if (!booking) return res.status(404).json({ error: "Rezervacija ni najdena" });
   return res.json(booking);
 });
@@ -111,8 +114,9 @@ router.get("/:id", (req: Request, res: Response) => {
  *       404:
  *         description: Ni najdena
  */
-router.patch("/:id/cancel", (req: Request, res: Response) => {
-  const booking = new BookingRepository().cancel(req.params.id);
+router.patch("/:id/cancel", async (req: Request, res: Response) => {
+  const booking = await new BookingRepository().cancel(req.params.id);
   if (!booking) return res.status(404).json({ error: "Rezervacija ni najdena" });
+  if (booking.slotId) await markSlotAvailable(booking.slotId);
   return res.json(booking);
 });
