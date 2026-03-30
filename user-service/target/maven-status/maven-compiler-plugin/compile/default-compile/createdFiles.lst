@@ -1,0 +1,8 @@
+si/sportfield/userservice/config/CorsConfig.class
+si/sportfield/userservice/domain/User.class
+si/sportfield/userservice/UserServiceApplication.class
+si/sportfield/userservice/config/RabbitMQConfig.class
+si/sportfield/userservice/service/UserService.class
+si/sportfield/userservice/controller/UserController.class
+si/sportfield/userservice/messaging/BookingEventListener.class
+si/sportfield/userservice/repository/UserRepository.class

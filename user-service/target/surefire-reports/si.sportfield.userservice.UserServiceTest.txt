@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: si.sportfield.userservice.UserServiceTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.539 s -- in si.sportfield.userservice.UserServiceTest

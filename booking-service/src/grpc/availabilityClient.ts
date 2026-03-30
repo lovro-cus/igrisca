@@ -22,6 +22,33 @@ const client = new proto.availability.AvailabilityService(
   grpc.credentials.createInsecure()
 );
 
+export function addTimeSlot(fieldId: string, date: string, timeSlot: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    client.AddTimeSlot({ fieldId, date, timeSlot }, (err: any, response: any) => {
+      if (err) {
+        logger.warn(`gRPC AddTimeSlot failed: ${err.message}`);
+        reject(err);
+        return;
+      }
+      logger.info(`gRPC AddTimeSlot success: ${fieldId} ${date} ${timeSlot}`);
+      resolve(response);
+    });
+  });
+}
+
+export function getAvailableSlots(fieldId: string, date: string): Promise<any[]> {
+  return new Promise((resolve) => {
+    client.GetAvailableSlots({ fieldId, date }, (err: any, response: any) => {
+      if (err) {
+        logger.warn(`gRPC GetAvailableSlots failed: ${err.message}`);
+        resolve([]);
+        return;
+      }
+      resolve(response.slots ?? []);
+    });
+  });
+}
+
 export function markSlotBooked(slotId: string): Promise<void> {
   return new Promise((resolve, reject) => {
     client.MarkSlotBooked({ id: slotId }, (err: any) => {

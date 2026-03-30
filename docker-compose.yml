@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  # Bazi
+  # ── Podatkovne baze ─────────────────────────────────────────────────────
   bookings-db:
     image: postgres:16-alpine
     environment:
@@ -12,6 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - bookings_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   availability-db:
     image: postgres:16-alpine
@@ -23,8 +28,46 @@ services:
       - "5433:5432"
     volumes:
       - availability_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-  # Storitve
+  users-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: users
+    ports:
+      - "5434:5432"
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Sporočilni posrednik ─────────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"   # RabbitMQ Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Mikrostoritve ────────────────────────────────────────────────────────
   availability-service:
     build: ./availability-service
     ports:
@@ -33,7 +76,8 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@availability-db:5432/availability
       GRPC_PORT: "9090"
     depends_on:
-      - availability-db
+      availability-db:
+        condition: service_healthy
 
   booking-service:
     build: ./booking-service
@@ -42,10 +86,44 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@bookings-db:5432/bookings
       AVAILABILITY_SERVICE_URL: availability-service:9090
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     depends_on:
-      - bookings-db
-      - availability-service
+      bookings-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      availability-service:
+        condition: service_started
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "8080:8080"
+    environment:
+      R2DBC_URL: r2dbc:postgresql://users-db:5432/users
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+    depends_on:
+      users-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  # ── Spletni vmesnik ──────────────────────────────────────────────────────
+  web-ui:
+    build: ./web-ui
+    ports:
+      - "80:80"
+    depends_on:
+      - booking-service
+      - user-service
 
 volumes:
   bookings_db_data:
   availability_db_data:
+  users_db_data:
+  rabbitmq_data:

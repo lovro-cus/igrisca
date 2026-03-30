@@ -1,0 +1,8 @@
+/app/src/main/java/si/sportfield/userservice/domain/User.java
+/app/src/main/java/si/sportfield/userservice/config/RabbitMQConfig.java
+/app/src/main/java/si/sportfield/userservice/config/CorsConfig.java
+/app/src/main/java/si/sportfield/userservice/controller/UserController.java
+/app/src/main/java/si/sportfield/userservice/repository/UserRepository.java
+/app/src/main/java/si/sportfield/userservice/service/UserService.java
+/app/src/main/java/si/sportfield/userservice/UserServiceApplication.java
+/app/src/main/java/si/sportfield/userservice/messaging/BookingEventListener.java

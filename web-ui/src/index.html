@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SportField – Rezervacija Igrišč</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" href="#" onclick="showView('home')">
+        <span class="logo-icon">⚽</span>
+        <span>SportField</span>
+      </a>
+      <nav class="header-nav" id="headerNav">
+        <a href="#" onclick="showView('home')">Domov</a>
+        <a href="#" onclick="showView('fields')">Igrišča</a>
+        <a href="#" id="navBookings" onclick="requireAuth(()=>showView('my-bookings'))" style="display:none">Moje rezervacije</a>
+      </nav>
+      <div class="header-actions">
+        <div id="authButtons">
+          <button class="btn btn-outline" onclick="openModal('loginModal')">Prijava</button>
+          <button class="btn btn-primary" onclick="openModal('registerModal')">Registracija</button>
+        </div>
+        <div id="userMenu" style="display:none">
+          <span class="user-badge" id="userBadge"></span>
+          <button class="btn btn-outline btn-sm" onclick="logout()">Odjava</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main>
+
+    <!-- HOME VIEW -->
+    <div id="view-home">
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Rezervirajte igrišče<br/>v nekaj klikih</h1>
+          <p>10 igrišč · Tenis · Padel · Multi-sport · Vsak vikend v aprilu</p>
+          <button class="btn btn-accent btn-lg" onclick="showView('fields')">Poišči termin</button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><span class="stat-num">10</span><span>Igrišč</span></div>
+          <div class="stat"><span class="stat-num">800</span><span>Terminov</span></div>
+          <div class="stat"><span class="stat-num">8</span><span>Vikend dni</span></div>
+        </div>
+      </section>
+
+      <section class="categories-section">
+        <h2>Vrste igrišč</h2>
+        <div class="category-grid">
+          <div class="category-card" onclick="showView('fields','multi')">
+            <div class="cat-icon">⚽</div>
+            <h3>Multi-sport</h3>
+            <p>4 igrišča za različne športe</p>
+            <span class="cat-badge">field-1 do field-4</span>
+          </div>
+          <div class="category-card" onclick="showView('fields','tennis')">
+            <div class="cat-icon">🎾</div>
+            <h3>Tenis</h3>
+            <p>3 teniška igrišča</p>
+            <span class="cat-badge">tennis-court-1 do 3</span>
+          </div>
+          <div class="category-card" onclick="showView('fields','paddle')">
+            <div class="cat-icon">🏓</div>
+            <h3>Padel</h3>
+            <p>3 padel igrišča</p>
+            <span class="cat-badge">paddle-court-1 do 3</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- FIELDS VIEW -->
+    <div id="view-fields" style="display:none">
+      <div class="view-header">
+        <h2>Izberi igrišče in datum</h2>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-cat="all" onclick="filterFields('all',this)">Vsa igrišča</button>
+        <button class="tab" data-cat="multi" onclick="filterFields('multi',this)">⚽ Multi-sport</button>
+        <button class="tab" data-cat="tennis" onclick="filterFields('tennis',this)">🎾 Tenis</button>
+        <button class="tab" data-cat="paddle" onclick="filterFields('paddle',this)">🏓 Padel</button>
+      </div>
+
+      <!-- Date picker -->
+      <div class="date-bar">
+        <label>Datum:</label>
+        <div class="date-chips" id="dateChips"></div>
+      </div>
+
+      <!-- Fields grid -->
+      <div class="fields-grid" id="fieldsGrid"></div>
+    </div>
+
+    <!-- BOOKING VIEW -->
+    <div id="view-booking" style="display:none">
+      <div class="view-header">
+        <button class="btn-back" onclick="showView('fields')">← Nazaj</button>
+        <div>
+          <h2 id="bookingFieldName"></h2>
+          <p id="bookingDateLabel" class="sub"></p>
+        </div>
+      </div>
+      <div class="slots-container">
+        <div id="slotsGrid" class="slots-grid"></div>
+      </div>
+    </div>
+
+    <!-- MY BOOKINGS VIEW -->
+    <div id="view-my-bookings" style="display:none">
+      <div class="view-header">
+        <h2>Moje rezervacije</h2>
+        <button class="btn btn-outline btn-sm" onclick="loadMyBookings()">↺ Osveži</button>
+      </div>
+      <div id="myBookingsList"></div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="logo"><span class="logo-icon">⚽</span> SportField</span>
+      <span>© 2026 · Rezervacija Športnih Igrišč</span>
+    </div>
+  </footer>
+
+  <!-- MODALS -->
+  <div class="modal-overlay" id="loginModal" onclick="closeModalOutside(event,'loginModal')">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+      <h2>Prijava</h2>
+      <input type="email" id="loginEmail" placeholder="E-pošta" />
+      <input type="password" id="loginPassword" placeholder="Geslo" />
+      <button class="btn btn-primary btn-block" onclick="login()">Prijava</button>
+      <p class="modal-switch">Nimate računa? <a href="#" onclick="switchModal('loginModal','registerModal')">Registracija</a></p>
+      <p id="loginMsg" class="msg"></p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="registerModal" onclick="closeModalOutside(event,'registerModal')">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
+      <h2>Registracija</h2>
+      <input type="text" id="regUsername" placeholder="Uporabniško ime" />
+      <input type="email" id="regEmail" placeholder="E-pošta" />
+      <input type="password" id="regPassword" placeholder="Geslo" />
+      <button class="btn btn-primary btn-block" onclick="register()">Ustvari račun</button>
+      <p class="modal-switch">Že imate račun? <a href="#" onclick="switchModal('registerModal','loginModal')">Prijava</a></p>
+      <p id="registerMsg" class="msg"></p>
+    </div>
+  </div>
+
+  <!-- CONFIRM BOOKING MODAL -->
+  <div class="modal-overlay" id="confirmModal" onclick="closeModalOutside(event,'confirmModal')">
+    <div class="modal modal-sm">
+      <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
+      <h2>Potrdi rezervacijo</h2>
+      <div class="confirm-details" id="confirmDetails"></div>
+      <button class="btn btn-accent btn-block" onclick="confirmBooking()">Rezerviraj</button>
+      <p id="confirmMsg" class="msg"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

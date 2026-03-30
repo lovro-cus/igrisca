@@ -6,8 +6,18 @@ jest.mock("../src/database", () => ({
 }));
 
 jest.mock("../src/grpc/availabilityClient", () => ({
+  getAvailableSlots: jest.fn().mockResolvedValue([
+    { id: "slot-1", fieldId: "f1", date: "2026-03-20", timeSlot: "10:00-11:00", available: true },
+  ]),
+  addTimeSlot: jest.fn().mockResolvedValue(
+    { id: "slot-1", fieldId: "f1", date: "2026-03-20", timeSlot: "10:00-11:00", available: true },
+  ),
   markSlotBooked: jest.fn().mockResolvedValue(undefined),
   markSlotAvailable: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock("../src/messaging/publisher", () => ({
+  publishEvent: jest.fn().mockResolvedValue(undefined),
 }));
 
 import request from "supertest";

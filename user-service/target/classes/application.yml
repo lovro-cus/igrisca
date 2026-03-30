@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: user-service
+
+  r2dbc:
+    url: ${R2DBC_URL:r2dbc:postgresql://localhost:5434/users}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+
+  sql:
+    init:
+      mode: always
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+server:
+  port: ${PORT:8080}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    si.sportfield: DEBUG
+    root: INFO

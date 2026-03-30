@@ -7,7 +7,15 @@ export class BookingRepository {
     return require("../database").default;
   }
 
-  async create(userId: string, fieldId: string, date: string, timeSlot: string, slotId?: string): Promise<Booking> {
+  async create(userId: string, fieldId: string, date: string, timeSlot: string, slotId?: string): Promise<Booking | null> {
+    const existing = await this.db.query(
+      `SELECT id FROM bookings WHERE "fieldId" = $1 AND date = $2 AND "timeSlot" = $3 AND status = 'active'`,
+      [fieldId, date, timeSlot]
+    );
+    if (existing.rows.length > 0) {
+      logger.warn(`Duplicate booking attempt: fieldId=${fieldId} date=${date} timeSlot=${timeSlot}`);
+      return null;
+    }
     const booking: Booking = {
       id: uuidv4(),
       userId, fieldId, slotId, date, timeSlot,

@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(docker compose:*)",
+      "Bash(curl -s http://localhost:3001/health)",
+      "Bash(curl -s http://localhost:8080/users)",
+      "Bash(curl -s http://localhost/api/health)",
+      "Bash(curl -s -X POST http://localhost/api/bookings -H \"Content-Type: application/json\" -d '{\"\"userId\"\":\"\"test\"\",\"\"fieldId\"\":\"\"f1\"\",\"\"date\"\":\"\"2026-04-01\"\",\"\"timeSlot\"\":\"\"10:00-11:00\"\"}')",
+      "Bash(curl -s http://localhost/api/bookings/user/test)",
+      "Bash(curl -s -X POST http://localhost/api/bookings -H \"Content-Type: application/json\" -d '{\"\"userId\"\":\"\"u1\"\",\"\"fieldId\"\":\"\"f1\"\",\"\"date\"\":\"\"2026-05-01\"\",\"\"timeSlot\"\":\"\"10:00-11:00\"\"}')",
+      "Bash(curl -s -X POST http://localhost/api/bookings -H \"Content-Type: application/json\" -d '{\"\"userId\"\":\"\"u2\"\",\"\"fieldId\"\":\"\"f1\"\",\"\"date\"\":\"\"2026-05-01\"\",\"\"timeSlot\"\":\"\"10:00-11:00\"\"}')",
+      "Bash(docker exec:*)",
+      "Bash(curl -s \"http://localhost/api/bookings/available?fieldId=tennis-court-1&date=2026-04-05\")",
+      "Bash(curl -s \"http://localhost/api/bookings/available?fieldId=paddle-court-2&date=2026-04-26\")",
+      "Bash(npm test:*)",
+      "Bash(pip install:*)",
+      "Bash(python generate_proto.py)",
+      "Bash(pytest tests/ -v)",
+      "Bash(docker run:*)",
+      "Bash(mvn test:*)"
+    ]
+  }
+}

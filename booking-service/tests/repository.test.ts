@@ -16,11 +16,21 @@ describe("BookingRepository", () => {
   });
 
   test("should create a booking", async () => {
-    mockQuery.mockResolvedValue({ rows: [] });
+    // Prvo klicanje = preverjanje duplikata (vrne prazno), drugo = INSERT
+    mockQuery.mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [] });
     const b = await repo.create("user1", "field1", "2026-03-20", "10:00-11:00");
-    expect(b.id).toBeDefined();
-    expect(b.status).toBe("active");
+    expect(b).not.toBeNull();
+    expect(b!.id).toBeDefined();
+    expect(b!.status).toBe("active");
     expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT"), expect.any(Array));
+  });
+
+  test("should return null for duplicate booking", async () => {
+    const existing = { id: "existing-id" };
+    mockQuery.mockResolvedValueOnce({ rows: [existing] });
+    const b = await repo.create("user1", "field1", "2026-03-20", "10:00-11:00");
+    expect(b).toBeNull();
+    expect(mockQuery).not.toHaveBeenCalledWith(expect.stringContaining("INSERT"), expect.any(Array));
   });
 
   test("should get booking by id - found", async () => {
