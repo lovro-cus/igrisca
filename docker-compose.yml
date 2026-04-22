@@ -113,14 +113,39 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  # ── API Prehodi (BFF) ────────────────────────────────────────────────────
+  web-bff:
+    build: ./web-bff
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: "4000"
+      USER_SERVICE_URL: http://user-service:8080
+      BOOKING_SERVICE_URL: http://booking-service:3001
+    depends_on:
+      - booking-service
+      - user-service
+
+  mobile-bff:
+    build: ./mobile-bff
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: "5000"
+      USER_SERVICE_URL: http://user-service:8080
+      BOOKING_SERVICE_URL: http://booking-service:3001
+    depends_on:
+      - booking-service
+      - user-service
+
   # ── Spletni vmesnik ──────────────────────────────────────────────────────
   web-ui:
     build: ./web-ui
     ports:
       - "80:80"
     depends_on:
-      - booking-service
-      - user-service
+      - web-bff
+      - mobile-bff
 
 volumes:
   bookings_db_data:

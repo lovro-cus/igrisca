@@ -1,0 +1,194 @@
+{
+  "info": {
+    "name": "Naloga 4 – API Prehodi (BFF)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health Check",
+      "item": [
+        {
+          "name": "Web BFF – Health",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:4000/health"
+          }
+        },
+        {
+          "name": "Mobile BFF – Health",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Registracija in prijava",
+      "item": [
+        {
+          "name": "Web BFF – Registracija",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:4000/api/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"janez\",\n  \"email\": \"janez@test.com\",\n  \"password\": \"geslo123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Mobile BFF – Prijava",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:5000/m/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"janez@test.com\",\n  \"password\": \"geslo123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Dodaj termine",
+      "item": [
+        {
+          "name": "Web BFF – Dodaj termin 10:00",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:4000/api/bookings/slots",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fieldId\": \"igrisca-1\",\n  \"date\": \"2026-05-10\",\n  \"timeSlot\": \"10:00-11:00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Web BFF – Dodaj termin 12:00",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:4000/api/bookings/slots",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fieldId\": \"igrisca-1\",\n  \"date\": \"2026-05-10\",\n  \"timeSlot\": \"12:00-13:00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Prosti termini – KLJUČNA RAZLIKA",
+      "item": [
+        {
+          "name": "Web BFF – /api/bookings/available?fieldId=...&date=...",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:4000/api/bookings/available?fieldId=igrisca-1&date=2026-05-10",
+              "host": ["localhost"],
+              "port": "4000",
+              "path": ["api", "bookings", "available"],
+              "query": [
+                { "key": "fieldId", "value": "igrisca-1" },
+                { "key": "date", "value": "2026-05-10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mobile BFF – /m/fields/igrisca-1/slots?date=...",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:5000/m/fields/igrisca-1/slots?date=2026-05-10",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["m", "fields", "igrisca-1", "slots"],
+              "query": [
+                { "key": "date", "value": "2026-05-10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Rezervacija",
+      "item": [
+        {
+          "name": "Mobile BFF – Ustvari rezervacijo",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:5000/m/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"1\",\n  \"fieldId\": \"igrisca-1\",\n  \"date\": \"2026-05-10\",\n  \"timeSlot\": \"10:00-11:00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Web BFF – Ustvari rezervacijo",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:4000/api/bookings",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"1\",\n  \"fieldId\": \"igrisca-1\",\n  \"date\": \"2026-05-10\",\n  \"timeSlot\": \"12:00-13:00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Poglej rezervacije",
+      "item": [
+        {
+          "name": "Web BFF – Rezervacije uporabnika",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:4000/api/bookings/user/1"
+          }
+        },
+        {
+          "name": "Mobile BFF – Rezervacije uporabnika",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/m/reservations/user/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Prekliči rezervacijo",
+      "item": [
+        {
+          "name": "Web BFF – Prekliči (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "url": "http://localhost:4000/api/bookings/BOOKING_ID_TUKAJ/cancel"
+          }
+        },
+        {
+          "name": "Mobile BFF – Prekliči (DELETE)",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:5000/m/reservations/BOOKING_ID_TUKAJ"
+          }
+        }
+      ]
+    }
+  ]
+}

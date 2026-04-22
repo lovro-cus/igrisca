@@ -1,0 +1,27 @@
+name: Mobile BFF CI
+
+on:
+  push:
+    paths:
+      - "mobile-bff/**"
+  pull_request:
+    paths:
+      - "mobile-bff/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile-bff
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+
+      - name: Run tests
+        run: go test ./...

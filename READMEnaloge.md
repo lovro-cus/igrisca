@@ -104,3 +104,18 @@ Uporaba GitHub Actions GitHub Actions
 Vaš repozitorij dopolnite, da boste uporabljali GitHub Actions:
 
 - workflow naj zaenkrat ob ukazu push izvede Unit teste, ki ste jih napisali v vaši mikrostoritvi❕
+
+##Naloga 4
+
+Dopolnite vašo mikrostoritveno arhitekturo z vpeljavo vzorca Prehod API (angl.: API Gateway).
+
+Mikrostoritveni arhitekturi zagotovite sledeče:
+Ustvarite prehod, ki bo enotna vstopna točka za odjemalce.
+
+Potrebno je ustvariti vsaj dva prehoda, na primer: en je namenjen spletnem odjemalcu in en mobilnemu (vsak v drugi tehnologiji in z drugačnimi izpostavljenimi končnimi točkami)❗
+
+Ne pozabite, da je na prehodih potrebno implementirati vse končne točke, ki jih boste potrebovali v vašem spletnem/mobilnem odjemalcu.
+
+Delovanje prehodov lahko zaenkrat demonstrirate na poljuben način (npr.: Postman).
+
+Dodatno gradivo za nalogo 4: bff.pdf

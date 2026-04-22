@@ -18,7 +18,13 @@
       "Bash(python generate_proto.py)",
       "Bash(pytest tests/ -v)",
       "Bash(docker run:*)",
-      "Bash(mvn test:*)"
+      "Bash(mvn test:*)",
+      "Bash(go test *)",
+      "Bash(docker-compose up *)",
+      "Bash(curl -s http://localhost:4000/health)",
+      "Bash(curl -s http://localhost:5000/health)",
+      "Bash(curl *)",
+      "Bash(docker-compose down *)"
     ]
   }
 }

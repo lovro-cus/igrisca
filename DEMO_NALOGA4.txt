@@ -1,0 +1,135 @@
+================================================================
+  NALOGA 4 – API Prehodi (BFF vzorec) – Demo & Zagon
+================================================================
+
+OPOMBA: Ukazi so za PowerShell z Invoke-RestMethod (irm).
+Krajšava: irm = Invoke-RestMethod
+
+----------------------------------------------------------------
+  ZAGON PROJEKTA
+----------------------------------------------------------------
+
+Predpogoj: Docker Desktop mora biti zagnan.
+
+1. V terminalu pojdi v mapo projekta:
+   cd C:\storitveno\igrisca
+
+2. Zgradi in zaženi vse storitve:
+   docker-compose up --build
+
+3. Počakaj da se vse zažene (~1-2 minuti).
+
+Porti:
+  - Web BFF      → http://localhost:4000
+  - Mobile BFF   → http://localhost:5000
+  - Booking Svc  → http://localhost:3001
+  - User Svc     → http://localhost:8080
+  - Web UI       → http://localhost:80
+  - RabbitMQ UI  → http://localhost:15672  (guest/guest)
+
+Ponoven zagon s svežo bazo (pred vsakim demo):
+   docker-compose down -v ; docker-compose up -d
+
+----------------------------------------------------------------
+  DEMO – KORAK 1: Preveri oba prehoda sta živa
+----------------------------------------------------------------
+
+Invoke-RestMethod http://localhost:4000/health
+# Pričakovan odgovor: status=ok, gateway=web-bff
+
+Invoke-RestMethod http://localhost:5000/health
+# Pričakovan odgovor: status=ok, gateway=mobile-bff
+
+----------------------------------------------------------------
+  DEMO – KORAK 2: Registracija in prijava
+----------------------------------------------------------------
+
+# Registracija prek Web BFF (spletni odjemalec)
+Invoke-RestMethod -Method POST -Uri http://localhost:4000/api/auth/register -ContentType "application/json" -Body '{"username":"janez","email":"janez@test.com","password":"geslo123"}'
+
+# Prijava prek Mobile BFF (mobilni odjemalec) – drugačna pot!
+Invoke-RestMethod -Method POST -Uri http://localhost:5000/m/auth/login -ContentType "application/json" -Body '{"email":"janez@test.com","password":"geslo123"}'
+
+----------------------------------------------------------------
+  DEMO – KORAK 3: Dodaj termin (prek Web BFF)
+----------------------------------------------------------------
+
+Invoke-RestMethod -Method POST -Uri http://localhost:4000/api/bookings/slots -ContentType "application/json" -Body '{"fieldId":"igrisca-1","date":"2026-05-10","timeSlot":"10:00-11:00"}'
+
+Invoke-RestMethod -Method POST -Uri http://localhost:4000/api/bookings/slots -ContentType "application/json" -Body '{"fieldId":"igrisca-1","date":"2026-05-10","timeSlot":"12:00-13:00"}'
+
+----------------------------------------------------------------
+  DEMO – KORAK 4: Pogled prostih terminov – KLJUČNA RAZLIKA
+----------------------------------------------------------------
+
+# Web BFF – query params stil
+Invoke-RestMethod "http://localhost:4000/api/bookings/available?fieldId=igrisca-1&date=2026-05-10"
+
+# Mobile BFF – resource path stil (drugačen URL dizajn!)
+Invoke-RestMethod "http://localhost:5000/m/fields/igrisca-1/slots?date=2026-05-10"
+
+# Oba vrneta iste podatke, a prek različnih prehodov z različno URL strukturo.
+
+----------------------------------------------------------------
+  DEMO – KORAK 5: Ustvari rezervacijo prek Mobile BFF
+----------------------------------------------------------------
+
+$rezervacija = Invoke-RestMethod -Method POST -Uri http://localhost:5000/m/reservations -ContentType "application/json" -Body '{"userId":"1","fieldId":"igrisca-1","date":"2026-05-10","timeSlot":"10:00-11:00"}'
+$rezervacija
+$id = $rezervacija.id
+echo "ID rezervacije: $id"
+
+----------------------------------------------------------------
+  DEMO – KORAK 6: Poglej rezervacije prek obeh prehodov
+----------------------------------------------------------------
+
+# Prek Web BFF
+Invoke-RestMethod http://localhost:4000/api/bookings/user/1
+
+# Prek Mobile BFF – drugačna pot
+Invoke-RestMethod http://localhost:5000/m/reservations/user/1
+
+----------------------------------------------------------------
+  DEMO – KORAK 7: Prekliči rezervacijo
+----------------------------------------------------------------
+
+# Uporabi $id iz koraka 5 (ali kopiraj ID ročno)
+
+# Prek Web BFF
+Invoke-RestMethod -Method PATCH "http://localhost:4000/api/bookings/$id/cancel"
+
+# Prek Mobile BFF
+Invoke-RestMethod -Method DELETE "http://localhost:5000/m/reservations/$id"
+
+----------------------------------------------------------------
+  KLJUČNE TOČKE ZA RAZLAGO NA ZAGOVORU
+----------------------------------------------------------------
+
+1. ENOTNA VSTOPNA TOČKA
+   Odjemalec ne ve za booking-service (3001) ali user-service (8080).
+   Kliče samo en naslov: 4000 (splet) ali 5000 (mobitel).
+
+2. RAZLIČNA URL STRUKTURA
+   Web BFF:    /api/bookings/available?fieldId=X&date=Y
+   Mobile BFF: /m/fields/X/slots?date=Y
+   Isti podatek, dizajn prilagojen odjemalcu.
+
+3. RAZLIČNI TEHNOLOGIJI
+   Web BFF:    Node.js / TypeScript (Express)
+   Mobile BFF: Go (net/http)
+
+4. TEHNOLOGIJE MIKROSTORITEV (vse različne, kot zahtevano)
+   Naloga 1 – booking-service:      Node.js / TypeScript
+   Naloga 2 – availability-service: Python + gRPC
+   Naloga 3 – user-service:         Java + Spring WebFlux + RabbitMQ
+   Naloga 4 – web-bff:              Node.js / TypeScript
+              mobile-bff:           Go
+
+----------------------------------------------------------------
+  USTAVITEV PROJEKTA
+----------------------------------------------------------------
+
+docker-compose down
+
+# Če želiš pobrisati tudi podatke v bazah:
+docker-compose down -v
