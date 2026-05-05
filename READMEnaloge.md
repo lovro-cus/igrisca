@@ -119,3 +119,19 @@ Ne pozabite, da je na prehodih potrebno implementirati vse končne točke, ki ji
 Delovanje prehodov lahko zaenkrat demonstrirate na poljuben način (npr.: Postman).
 
 Dodatno gradivo za nalogo 4: bff.pdf
+
+##Naloga 5:
+
+Navodilo naloge:
+
+1. Dopolnite vašo mikrostoritveno arhitekturo z odjemalcem v obliki spletnega uporabniškega vmesnika.
+2. Vaše cevovode (angl.: pipelines) na GitHub Actions dopolnite z gradnjo in objavo zabojniških slik na DockerHub.
+
+Mikrostoritveni arhitekturi zagotovite sledeče:
+Ustvarite spletno aplikacijo, ki bo služila kot odjemalce.
+
+Spletno aplikacijo razvijte po arhitekturnem stilu Micro Frontends❗
+
+Uporabniški vmesnik naj omogoča testiranje vseh funkcionalnosti, ki jih ponujajo mikrostoritve v zalednem sistemu🚨
+
+Zgraditi in objaviti je potrebno zabojniške slike vseh komponent vaše mikrostoritvene arhitekture.
